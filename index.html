@@ -51,7 +51,7 @@
 </head>
 <body>
 <header>
-  <img src="https://cdn.jsdelivr.net/gh/lunacat-assets/pixel-luna.gif" alt="Luna">
+  <img id="luna-img" src="https://media1.tenor.com/m/WSAhMNh7A90AAAAC/cat-black-cat-srodan-anonimlesmek-animation-cat-art-art-meow-black.gif" alt="Luna">
   <h1>🌙 Luna’s Cozy Library</h1>
   <div id="luna-quote"></div>
 </header>
@@ -96,6 +96,9 @@
 /* Sparkles */
 for(let i=0;i<18;i++){const s=document.createElement('span');s.className='sparkle';s.textContent='✦';s.style.left=Math.random()*100+'vw';s.style.fontSize=(Math.random()*1.5+.8)+'rem';s.style.animationDelay=Math.random()*-18+'s';document.body.appendChild(s);}  
 
+document.getElementById('luna-img').addEventListener('click', () => {
+  alert('🎉 Congratulations Iman on your graduation! 🎓');
+});
 /* Quotes */
 const quotes=["A chapter a day keeps reality away.","Books are just cats that don't move.","Turn the page, chase the dream.","Money can't buy happiness, but it can buy books!","Curl up and read – signed, Luna 🐾"];
 const quoteEl=document.getElementById('luna-quote');
