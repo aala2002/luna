@@ -12,19 +12,17 @@
       --text:#2e3a4d; --accent:#ff92c2; --card:rgba(255,255,255,.55);
     }
     *,*::before,*::after{box-sizing:border-box}
-    body{margin:0;font-family:Poppins, sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));overflow-x:hidden}
-    /* header */
+    body{margin:0;font-family:Poppins,sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));overflow-x:hidden}
     header{text-align:center;padding:2rem 1rem 1rem}
     header h1{font-family:Chewy,cursive;font-size:2.7rem;margin:.3rem 0}
-    header img{width:80px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));animation:float 4s ease-in-out infinite}
+    header img{width:80px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));animation:float 4s ease-in-out infinite;cursor:pointer}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
     #luna-quote{font-size:.95rem;margin-top:.3rem;opacity:.8}
-    /* sparkles */
     @keyframes drift{to{transform:translateY(-120vh) rotate(360deg);opacity:0}}
     .sparkle{position:fixed;bottom:-2rem;font-size:1.2rem;opacity:.8;animation:drift 18s linear infinite;pointer-events:none}
-    /* controls */
     main{flex:1;width:95%;max-width:1100px;margin:auto}
-    #controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2rem}
+    #controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:2rem;transition:max-height .4s ease,opacity .4s ease}
+    #controls.hide{max-height:0;opacity:0;overflow:hidden;pointer-events:none}
     form{background:var(--card);backdrop-filter:blur(10px);padding:1rem 1.2rem;border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
     form h3{font-family:Chewy,cursive;font-size:1.4rem;margin-bottom:.4rem;color:var(--accent)}
     form label{display:flex;flex-direction:column;font-size:.9rem;margin-top:.7rem}
@@ -32,15 +30,15 @@
     input,textarea,select{background:rgba(255,255,255,.75)}
     button{background:var(--accent);color:#fff;font-weight:600;cursor:pointer;transition:filter .2s}
     button:hover{filter:brightness(1.1)}
-    /* shelves */
+    #toggleBtn{background:none;border:2px solid var(--accent);color:var(--accent);padding:.4rem 1rem;border-radius:10px;font-size:.85rem;cursor:pointer;margin-bottom:1rem;transition:background .2s,color .2s}
+    #toggleBtn.active,#toggleBtn:hover{background:var(--accent);color:#fff}
     #shelves{display:flex;flex-direction:column;gap:3rem}
     .shelf{min-height:150px}
     .board{display:flex;align-items:flex-end;gap:.5rem;padding:0 1rem 1rem;height:100%;border-bottom:10px solid var(--shelf-edge);background:repeating-linear-gradient(135deg,var(--shelf-wood),var(--shelf-wood) 10px,#d7e9ff 10px,#d7e9ff 20px);border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,.12)}
     .book{width:32px;height:120px;border-radius:5px;writing-mode:vertical-rl;text-orientation:mixed;font-size:.72rem;text-align:center;padding:.3rem 0;cursor:pointer;color:#fff;user-select:none;transition:transform .2s;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.2)}
     .book:hover{transform:translateY(-8px)}
-    .deco{font-size:2rem;cursor:default;transition:transform .2s}
+    .deco{font-size:2rem;cursor:pointer;transition:transform .2s}
     .deco:hover{transform:translateY(-4px) rotate(-6deg)}
-    /* dialog */
     dialog{background:var(--card);border:none;border-radius:14px;padding:1.6rem;max-width:420px;color:var(--text);backdrop-filter:blur(6px)}
     dialog::backdrop{background:rgba(0,0,0,.6)}
     dialog menu{display:flex;justify-content:flex-end;gap:.6rem;margin-top:1rem}
@@ -56,7 +54,8 @@
   <div id="luna-quote"></div>
 </header>
 <main>
-  <section id="controls">
+  <button id="toggleBtn" class="active">Hide Controls</button>
+  <section id="controls" class="active">
     <form id="add-book-form">
       <h3>Add a Book</h3>
       <label>Title <input id="bTitle" required></label>
@@ -96,36 +95,56 @@
 /* Sparkles */
 for(let i=0;i<18;i++){const s=document.createElement('span');s.className='sparkle';s.textContent='✦';s.style.left=Math.random()*100+'vw';s.style.fontSize=(Math.random()*1.5+.8)+'rem';s.style.animationDelay=Math.random()*-18+'s';document.body.appendChild(s);}  
 
-document.getElementById('luna-img').addEventListener('click', () => {
-  alert('🎉 Congratulations Iman on your graduation! 🎓');
-});
 /* Quotes */
 const quotes=["A chapter a day keeps reality away.","Books are just cats that don't move.","Turn the page, chase the dream.","Money can't buy happiness, but it can buy books!","Curl up and read – signed, Luna 🐾"];
 const quoteEl=document.getElementById('luna-quote');
 const nextQuote=()=>quoteEl.textContent=quotes[Math.floor(Math.random()*quotes.length)];
 nextQuote();setInterval(nextQuote,10000);
 
-/* Data & helpers */
-const SHELF_COUNT=4, KEY='lunaShelf';
-let data=JSON.parse(localStorage.getItem(KEY)||'{"books":[],"decor":[]}');
-const save=()=>localStorage.setItem(KEY,JSON.stringify(data));
+/* Congrats click on GIF */
+document.getElementById('luna-img').onclick=()=>alert('🎉 Congratulations Iman on your graduation! 🎓');
 
-/* DOM references */
+/* Control panel toggle */
+const ctrl      = document.getElementById('controls');
+const toggleBtn = document.getElementById('toggleBtn');
+let controlsVisible=true;
+const updateToggle=()=>{
+  controlsVisible=!controlsVisible;
+  if (controlsVisible) {
+    ctrl.classList.remove('hide');
+    toggleBtn.textContent = 'Hide Controls';
+    toggleBtn.classList.add('active');
+  } else {
+    ctrl.classList.add('hide');
+    toggleBtn.textContent = 'Show Controls';
+    toggleBtn.classList.remove('active');
+  }
+};
+toggleBtn.addEventListener('click', updateToggle);
+
+/* ---------- data & helpers ---------- */
+const SHELF_COUNT = 4;
+const KEY = 'lunaShelf';
+let data = JSON.parse(localStorage.getItem(KEY) || '{"books":[],"decor":[]}');
+const save = () => localStorage.setItem(KEY, JSON.stringify(data));
+
+/* ---------- DOM references ---------- */
 const shelvesEl = document.getElementById('shelves');
-/* ---------- populate <select> options ---------- */
 const bShelfSel = document.getElementById('bShelf');
 const dShelfSel = document.getElementById('dShelf');
+
+/* populate <select> options */
 for (let i = 0; i < SHELF_COUNT; i++) {
-  const opt = new Option(`Shelf ${i + 1}`, i);
-  bShelfSel.add(opt.cloneNode(true));
-  dShelfSel.add(opt);
+  const o = new Option(`Shelf ${i + 1}`, i);
+  bShelfSel.add(o.cloneNode(true));
+  dShelfSel.add(o);
 }
 
 /* ---------- render shelves ---------- */
 function render() {
   shelvesEl.innerHTML = '';
   for (let s = 0; s < SHELF_COUNT; s++) {
-    const row   = document.createElement('div');
+    const row = document.createElement('div');
     row.className = 'shelf';
     const board = document.createElement('div');
     board.className = 'board';
@@ -136,15 +155,15 @@ function render() {
       ...data.decor.filter(d => d.shelf === s)
     ].sort((a, b) => a.created - b.created);
 
-    items.forEach(item => {
-      if (item.type === 'deco') {
+    items.forEach(it => {
+      if (it.type === 'deco') {
         const span = document.createElement('span');
-        span.className   = 'deco';
-        span.textContent = item.icon;
+        span.className = 'deco';
+        span.textContent = it.icon;
         span.title = 'Click to delete decoration';
         span.onclick = () => {
           if (confirm('Remove this decoration?')) {
-            data.decor = data.decor.filter(d => d.id !== item.id);
+            data.decor = data.decor.filter(d => d.id !== it.id);
             save();
             render();
           }
@@ -153,10 +172,10 @@ function render() {
       } else {
         const spine = document.createElement('div');
         spine.className = 'book';
-        spine.style.background = item.color;
-        spine.textContent = item.title.slice(0, 12);
-        spine.title = item.title;
-        spine.onclick = () => openDialog(item.id);
+        spine.style.background = it.color;
+        spine.textContent = it.title.slice(0, 12);
+        spine.title = it.title;
+        spine.onclick = () => openDialog(it.id);
         board.appendChild(spine);
       }
     });
@@ -166,44 +185,40 @@ function render() {
 }
 
 /* ---------- add-book form ---------- */
-document
-  .getElementById('add-book-form')
-  .addEventListener('submit', e => {
-    e.preventDefault();
-    const title = bTitle.value.trim();
-    if (!title) return;
-    data.books.push({
-      id: Date.now(),
-      title,
-      quote: bQuote.value.trim(),
-      review: '',
-      shelf: +bShelf.value,
-      color: bColor.value,
-      created: Date.now()
-    });
-    save();
-    e.target.reset();
-    render();
+document.getElementById('add-book-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const title = bTitle.value.trim();
+  if (!title) return;
+  data.books.push({
+    id: Date.now(),
+    title,
+    quote: bQuote.value.trim(),
+    review: '',
+    shelf: +bShelf.value,
+    color: bColor.value,
+    created: Date.now()
   });
+  save();
+  e.target.reset();
+  render();
+});
 
 /* ---------- add-decoration form ---------- */
-document
-  .getElementById('add-deco-form')
-  .addEventListener('submit', e => {
-    e.preventDefault();
-    data.decor.push({
-      id: Date.now(),          // ← so we can delete later
-      type: 'deco',
-      icon: dIcon.value,
-      shelf: +dShelf.value,
-      created: Date.now()
-    });
-    save();
-    e.target.reset();
-    render();
+document.getElementById('add-deco-form').addEventListener('submit', e => {
+  e.preventDefault();
+  data.decor.push({
+    id: Date.now(),
+    type: 'deco',
+    icon: dIcon.value,
+    shelf: +dShelf.value,
+    created: Date.now()
   });
+  save();
+  e.target.reset();
+  render();
+});
 
-/* ---------- dialog logic for books ---------- */
+/* ---------- dialog logic ---------- */
 const dialog      = document.getElementById('book-dialog');
 const dialogTitle = document.getElementById('dialog-title');
 const dialogQuote = document.getElementById('dialog-quote');
@@ -238,7 +253,7 @@ document.getElementById('delete-book').onclick = e => {
   render();
 };
 
-/* ---------- L U N A confetti cheat-code ---------- */
+/* ---------- L U N A confetti ---------- */
 let seq = '';
 window.addEventListener('keydown', e => {
   seq += e.key.toLowerCase();
@@ -259,9 +274,8 @@ window.addEventListener('keydown', e => {
   }
 });
 
-/* ---------- initial paint ---------- */
+/* ---------- first render ---------- */
 render();
 </script>
 </body>
 </html>
-
